@@ -15,7 +15,7 @@ const database = {
       name: 'John',
       email: 'john@gmail.com',
       password: 'cookies',
-      entties: 0,
+      entries: 0,
       joined: new Date(),
     },
     {
@@ -23,7 +23,7 @@ const database = {
       name: 'Sally',
       email: 'sally@gmail.com',
       password: 'bananas',
-      entties: 0,
+      entries: 0,
       joined: new Date(),
     },
   ],
@@ -51,22 +51,42 @@ app.post('/register', (req, res) => {
     name: name,
     email: email,
     password: password,
-    entties: 0,
+    entries: 0,
     joined: new Date(),
   });
   res.status(201).json(database.users[database.users.length - 1]);
+});
+
+app.get('/profile/:id', (req, res) => {
+  const { id } = req.params;
+  let found = false;
+  database.users.forEach((user) => {
+    if (user.id === id) {
+      found = true;
+      return res.status(200).json(user);
+    }
+  });
+  if (!found) {
+    res.status(404).json('No user found with that id');
+  }
+});
+
+app.put('/image', (req, res) => {
+  const { id } = req.body;
+  let found = false;
+  database.users.forEach((user) => {
+    if (user.id === id) {
+      found = true;
+      user.entries++;
+      return res.status(200).json(user.entries);
+    }
+  });
+  if (!found) {
+    res.status(404).json('No user found with that id');
+  }
 });
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`App is running on port ${PORT}!`);
 });
-
-/* 
-/ --> res = this is working
-/signin --> POST respond with success or fail
-/register --> POST respond with new user object
-/profile/:userId --> GET respond with the user
-/image --> PUT update the score, returns the updated data 
-
-*/
