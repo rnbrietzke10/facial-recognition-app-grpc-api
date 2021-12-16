@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+const bcrypt = require('bcrypt-nodejs');
 
 const app = express();
 
@@ -27,6 +28,13 @@ const database = {
       joined: new Date(),
     },
   ],
+  login: [
+    {
+      id: '987',
+      hash: '',
+      email: 'john@gmail.com',
+    },
+  ],
 };
 
 app.get('/', (req, res) => {
@@ -34,6 +42,21 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
+  // Load hash from your password DB
+  bcrypt.compare(
+    '1234abc',
+    '$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi',
+    (err, res) => {
+      console.log('first guess', res);
+    }
+  );
+  bcrypt.compare(
+    'veggies',
+    '$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi',
+    (err, res) => {
+      console.log('second guess', res);
+    }
+  );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
@@ -46,6 +69,10 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, name, password } = req.body;
+  bcrypt.hash(password, null, null, (err, hash) => {
+    console.log(hash);
+  });
+
   database.users.push({
     id: '125',
     name: name,
