@@ -1,80 +1,81 @@
-const express = require('express');
-require('dotenv').config();
-const bcrypt = require('bcrypt-nodejs');
+const express = require("express");
+require("dotenv").config();
+const bcrypt = require("bcrypt-nodejs");
+const cors = require("cors");
 
 const app = express();
 
 //Middleware
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 
 const database = {
   users: [
     {
-      id: '123',
-      name: 'John',
-      email: 'john@gmail.com',
-      password: 'cookies',
+      id: "123",
+      name: "John",
+      email: "john@gmail.com",
+      password: "cookies",
       entries: 0,
       joined: new Date(),
     },
     {
-      id: '124',
-      name: 'Sally',
-      email: 'sally@gmail.com',
-      password: 'bananas',
+      id: "124",
+      name: "Sally",
+      email: "sally@gmail.com",
+      password: "bananas",
       entries: 0,
       joined: new Date(),
     },
   ],
   login: [
     {
-      id: '987',
-      hash: '',
-      email: 'john@gmail.com',
+      id: "987",
+      hash: "",
+      email: "john@gmail.com",
     },
   ],
 };
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send(database.users);
 });
 
-app.post('/signin', (req, res) => {
+app.post("/signin", (req, res) => {
   // Load hash from your password DB
   bcrypt.compare(
-    '1234abc',
-    '$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi',
+    "1234abc",
+    "$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi",
     (err, res) => {
-      console.log('first guess', res);
+      // console.log("first guess", res);
     }
   );
   bcrypt.compare(
-    'veggies',
-    '$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi',
+    "veggies",
+    "$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi",
     (err, res) => {
-      console.log('second guess', res);
+      // console.log("second guess", res);
     }
   );
   if (
     req.body.email === database.users[0].email &&
     req.body.password === database.users[0].password
   ) {
-    res.status(200).json('Success');
+    res.status(200).json("success");
   } else {
-    res.status(400).json('error loggin in');
+    res.status(400).json("error loggin in");
   }
 });
 
-app.post('/register', (req, res) => {
+app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
   bcrypt.hash(password, null, null, (err, hash) => {
     console.log(hash);
   });
 
   database.users.push({
-    id: '125',
+    id: "125",
     name: name,
     email: email,
     password: password,
@@ -84,7 +85,7 @@ app.post('/register', (req, res) => {
   res.status(201).json(database.users[database.users.length - 1]);
 });
 
-app.get('/profile/:id', (req, res) => {
+app.get("/profile/:id", (req, res) => {
   const { id } = req.params;
   let found = false;
   database.users.forEach((user) => {
@@ -94,11 +95,11 @@ app.get('/profile/:id', (req, res) => {
     }
   });
   if (!found) {
-    res.status(404).json('No user found with that id');
+    res.status(404).json("No user found with that id");
   }
 });
 
-app.put('/image', (req, res) => {
+app.put("/image", (req, res) => {
   const { id } = req.body;
   let found = false;
   database.users.forEach((user) => {
@@ -109,7 +110,7 @@ app.put('/image', (req, res) => {
     }
   });
   if (!found) {
-    res.status(404).json('No user found with that id');
+    res.status(404).json("No user found with that id");
   }
 });
 
