@@ -17,7 +17,7 @@ const db = knex({
 db.select("*")
   .from("users")
   .then(data => {
-    console.log(data);
+    data;
   });
 
 const app = express();
@@ -88,27 +88,31 @@ app.post("/signin", (req, res) => {
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
   db("users")
+    .returning("*")
     .insert({
       email: email,
       name: name,
       joined: new Date(),
     })
-    .then(console.log);
-  res.status(201).json(database.users[database.users.length - 1]);
+    .then(user => res.status(201).json(user[0]))
+    .catch(err => res.status(400).json("Unable to register"));
 });
 
 app.get("/profile/:id", (req, res) => {
   const { id } = req.params;
-  let found = false;
-  database.users.forEach(user => {
-    if (user.id === id) {
-      found = true;
-      return res.status(200).json(user);
-    }
-  });
-  if (!found) {
-    res.status(404).json("No user found with that id");
-  }
+  db.select("*")
+    .from("users")
+    .where({
+      id,
+    })
+    .then(user => {
+      if (user.length) {
+        res.json(user[0]);
+      } else {
+        res.status(404).json("Not found");
+      }
+    })
+    .catch(err => res.status(404).json("Error getting user"));
 });
 
 app.put("/image", (req, res) => {
