@@ -28,62 +28,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 
-const database = {
-  users: [
-    {
-      id: "123",
-      name: "John",
-      email: "john@gmail.com",
-      password: "cookies",
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "Sally",
-      email: "sally@gmail.com",
-      password: "bananas",
-      entries: 0,
-      joined: new Date(),
-    },
-  ],
-  login: [
-    {
-      id: "987",
-      hash: "",
-      email: "john@gmail.com",
-    },
-  ],
-};
-
 app.get("/", (req, res) => {
-  res.send(database.users);
+  // Route not being used set up for future
+  res.send("success");
 });
 
 app.post("/signin", (req, res) => {
   // Load hash from your password DB
-  bcrypt.compare(
-    "1234abc",
-    "$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi",
-    (err, res) => {
-      // console.log("first guess", res);
-    }
-  );
-  bcrypt.compare(
-    "veggies",
-    "$2a$10$ncW3ozdZcZ1nIiy4VgAkreUR5JnpPyi/IOVzwNeW.tS93wzLpCwhi",
-    (err, res) => {
-      // console.log("second guess", res);
-    }
-  );
-  if (
-    req.body.email === database.users[0].email &&
-    req.body.password === database.users[0].password
-  ) {
-    res.status(200).json(database.users[0]);
-  } else {
-    res.status(400).json("error loggin in");
-  }
+  db.select("email", "hash")
+    .from("login")
+    .where("email", "=", req.body.email)
+    .then(data => {
+      const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+      if (isValid) {
+        return db
+          .select("*")
+          .from("users")
+          .where("email", "=", req.body.email)
+          .then(user => {
+            res.status(200).json(user[0]);
+          })
+          .catch(err => res.status(400).json("Unable to get user"));
+      } else {
+        res.status(400).json("Wrong credentials");
+      }
+    })
+    .catch(err => res.status(400).json("Wrong credentials"));
 });
 
 app.post("/register", (req, res) => {
