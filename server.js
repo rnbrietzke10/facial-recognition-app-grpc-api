@@ -1,21 +1,25 @@
-const express = require('express');
-require('dotenv').config();
-const bcrypt = require('bcrypt-nodejs');
-const cors = require('cors');
-const knex = require('knex');
-const register = require('./controllers/register');
-const signin = require('./controllers/signin');
-const profile = require('./controllers/profile');
-const image = require('./controllers/image');
+const express = require("express");
+require("dotenv").config();
+const bcrypt = require("bcrypt-nodejs");
+const cors = require("cors");
+const knex = require("knex");
+const register = require("./controllers/register");
+const signin = require("./controllers/signin");
+const profile = require("./controllers/profile");
+const image = require("./controllers/image");
 
 const db = knex({
-  client: 'pg',
-  connection: {
-    host: '127.0.0.1',
-    port: 5432,
-    user: process.env.DATABASE_USER_NAME,
-    password: process.env.DATABASE_PASSWORD,
-    database: 'smart-brain',
+  // client: 'pg',
+  // connection: {
+  //   host: '127.0.0.1',
+  //   port: 5432,
+  //   user: process.env.DATABASE_USER_NAME,
+  //   password: process.env.DATABASE_PASSWORD,
+  //   database: 'smart-brain',
+  // },
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
   },
 });
 
@@ -30,9 +34,9 @@ const db = knex({
 //   },
 // });
 
-db.select('*')
-  .from('users')
-  .then((data) => {
+db.select("*")
+  .from("users")
+  .then(data => {
     data;
   });
 
@@ -43,27 +47,27 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   // Route not being used set up for future
-  res.send('success');
+  res.send("success");
 });
 
-app.post('/signin', (req, res) => {
+app.post("/signin", (req, res) => {
   signin.handleSignin(req, res, db, bcrypt);
 });
 
-app.post('/register', (req, res) => {
+app.post("/register", (req, res) => {
   register.handleRegister(req, res, db, bcrypt);
 });
 
-app.get('/profile/:id', (req, res) => {
+app.get("/profile/:id", (req, res) => {
   profile.handleProfileGet(req, res, db);
 });
 
-app.put('/image', (req, res) => {
+app.put("/image", (req, res) => {
   image.handleImage(req, res, db);
 });
-app.post('/imageurl', (req, res) => {
+app.post("/imageurl", (req, res) => {
   image.handleApiCall(req, res);
 });
 
