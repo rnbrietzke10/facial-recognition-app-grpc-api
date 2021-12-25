@@ -9,7 +9,11 @@ const profile = require("./controllers/profile");
 const image = require("./controllers/image");
 
 const db = knex({
-  // client: 'pg',
+  client: "pg",
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   // connection: {
   //   host: '127.0.0.1',
   //   port: 5432,
@@ -17,10 +21,6 @@ const db = knex({
   //   password: process.env.DATABASE_PASSWORD,
   //   database: 'smart-brain',
   // },
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
 });
 
 // Deploy database
